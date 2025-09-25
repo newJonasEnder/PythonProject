@@ -2,6 +2,8 @@ from django.db import models, connection
 
 from django.core.exceptions import FieldError
 
+custom_id = models.PrefixSuffixCharField(prefix=date.year, suffix=)
+
 class PrefixSuffixCharField(models.CharField):
     def __init__(self, *args, sequence_name=None, prefixes=None, suffixes=None, **kwargs):
         if sequence_name:

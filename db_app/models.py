@@ -41,16 +41,16 @@ from core.models import Base
 
 
 
-class WorkLog(Base):
+"""class WorkLog(Base):
     date = models.DateField(default=date.today, verbose_name="Datum")
     duration = models.DurationField(verbose_name="Dauer")
-    employee = models.ForeignKey("persons.employee", on_delete=models.PROTECT, related_name="work", null=True, blank=True, verbose_name="interner Mitarbeiter")
-    #work_type = models.ForeignKey("WorkType", on_delete=models.PROTECT, related_name="work", null=True, blank=True, verbose_name="Arbeit-Art")
-    order = models.ForeignKey("orders.Order", on_delete=models.PROTECT, related_name="work", verbose_name="Auftrag")
+    employee = models.ForeignKey("persons.employee", on_delete=models.PROTECT, related_name="works", null=True, blank=True, verbose_name="interner Mitarbeiter")
+    #work_type = models.ForeignKey("WorkType", on_delete=models.PROTECT, related_name="works", null=True, blank=True, verbose_name="Arbeit-Art")
+    order = models.ForeignKey("orders.Order", on_delete=models.PROTECT, related_name="works", verbose_name="Auftrag")
 
     class Meta:
         ordering = ("date",)
         verbose_name = "Arbeit-Protokoll"
-        verbose_name_plural = "Arbeit-Protokolle"
+        verbose_name_plural = "Arbeit-Protokolle"""
 
 

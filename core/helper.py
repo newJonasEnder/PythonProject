@@ -3,8 +3,12 @@ from django.urls import reverse
 from django.utils.html import format_html
 from datetime import date
 
-def return_current_year():
+def get_year():
     return date.today().year
+
+def get_user():
+    user = request.user
+
 
 
 def create_filtered_changelist_link(obj, related_model, lookup, label):

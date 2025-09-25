@@ -2,21 +2,35 @@ from django.db import models
 from core.models import Base
 from datetime import date
 
+from clients.models import Client
+
+#-----------------------------------------------------------------------------------------------------------------------
+
 class Order(Base):
+    id = models.CharField(max_length=100, verbose_name="ID", null=True)
     date = models.DateField(default=date.today, verbose_name="Datum")
-    file = models.ForeignKey("files.File", on_delete=models.PROTECT, related_name="file_order", verbose_name="Datei")
-    clients = models.ManyToManyField("persons.Client", through="OrderClient", related_name="clients_orders", verbose_name="Kunde")
-    employees = models.ManyToManyField("persons.Employee", through="persons.EmployeeOrder", related_name="employees_orders", verbose_name="Mitarbeiter")
-    invoices = models.ManyToManyField("finances.Invoice", through="finances.InvoiceOrder", related_name="invoices_orders", verbose_name="Rechnung")
-
-    contract = models.ForeignKey("finances.Contract", on_delete=models.PROTECT) # ...
-
-    def __str__(self):
-        return f"{self.id}"
+    file = models.ForeignKey("files.File", on_delete=models.PROTECT, related_name="file_orders", verbose_name="Geschäftsfall")
+    clients = models.ManyToManyField("clients.Client", through="OrderClient", related_name="client_orders", verbose_name="Kunden")
+    contacts = models.ManyToManyField("contacts.Contact", through="OrderContact", related_name="contact_orders", verbose_name="Kontakte")
+    properties = models.ManyToManyField("properties.Property", through="OrderProperty", related_name="property_orders", verbose_name="Grundstücke")
 
     class Meta:
         verbose_name = "Auftrag"
         verbose_name_plural = "Aufträge"
+
+class OrderContact(models.Model):
+    order = models.ForeignKey("Order", on_delete=models.PROTECT)
+    contact = models.ForeignKey("contacts.Contact", on_delete=models.PROTECT)
+
+    class Meta:
+        verbose_name = "Auftrag-Kontakt-Beziehung"
+        verbose_name_plural = "Auftrag-Kontakt-Beziehungen"
+
+class OrderProperty(models.Model):
+    order = models.ForeignKey("Order", on_delete=models.PROTECT, verbose_name="Auftrag")
+    property = models.ForeignKey("properties.Property", on_delete=models.PROTECT, verbose_name="Grundstück")
+
+#-----------------------------------------------------------------------------------------------------------------------
 
 class OrderExtension(Base):
     order = models.OneToOneField("Order", on_delete=models.PROTECT, related_name="order_types", verbose_name="Auftrag")
@@ -42,8 +56,8 @@ class OrderLog(Base):
 
     class Meta:
         ordering = ("date",)
-        verbose_name = "Auftrag-Protokoll"
-        verbose_name_plural = "Auftrag-Protokolle"
+        verbose_name = "Zustandsänderung"
+        verbose_name_plural = "Zustandsänderungen"
 
 class OrderStatus(Base):
     """A lookup table"""
@@ -70,8 +84,8 @@ class OrderType(Base):
         return f"{self.name}"
 
 class OrderClient(Base):
-    order = models.ForeignKey("Order", on_delete=models.PROTECT, verbose_name="Auftrag")
-    client = models.ForeignKey("persons.Client", on_delete=models.PROTECT, verbose_name="Kunde")
+    order = models.ForeignKey("orders.Order", on_delete=models.PROTECT, verbose_name="Auftrag")
+    client = models.ForeignKey("clients.Client", on_delete=models.PROTECT, verbose_name="Kunde")
 
     def __str__(self):
         return f"{self.order}-{self.client}"

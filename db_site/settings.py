@@ -55,7 +55,10 @@ INSTALLED_APPS = [
     "orders",
     "persons",
     "vehicles",
-]
+    "works",
+    "clients", "contacts", "companies", "properties"
+    ]
+DEFAULT_ADMIN_SITE = "core.custom_admins.CustomAdminSite"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -93,10 +96,10 @@ WSGI_APPLICATION = 'db_site.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'office_db',
+        'NAME': 'devdb',
         'USER': 'postgres',
-        'PASSWORD': 'secret',
-        'HOST': 'localhost',
+        'PASSWORD': 'huber',
+        'HOST': '192.168.1.232',
         'PORT': '5432',
     }
 }
@@ -124,9 +127,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'de'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Berlin'
 
 USE_I18N = True
 
@@ -136,7 +139,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

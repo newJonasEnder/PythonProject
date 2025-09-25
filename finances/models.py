@@ -1,16 +1,29 @@
-from django.db import models
 from datetime import date
+from django.db import models
+#-----------------------------------------------------------------------------------------------------------------------
 from core.models import Base
 from core.defaults import Defaults
-
-class Document(Base):
-    external_id = models.IntegerField(null=True, blank=True, verbose_name="externe ID")
-    date = models.DateField(default=date.today, verbose_name="Datum")
-    net_amount = models.IntegerField(verbose_name="Nettobetrag", help_text="Nettobetrag in Cent")
-    notes = models.TextField(verbose_name="Notizen")
+#-----------------------------------------------------------------------------------------------------------------------
+class BankAccount(Base):
+    companies = models.ManyToManyField("persons.Company", related_name="company_bank_accounts",
+                                       blank=True, verbose_name="Firmen")
+    iban = models.CharField(verbose_name="IBAN")
+    persons = models.ManyToManyField("persons.Person", related_name="person_bank_accounts", blank=True,
+                                     verbose_name="Personen")
 
     def __str__(self):
-        return f"{self.internal_id}"
+        return f"{self.iban}"
+
+    class Meta:
+        ordering = ("iban",)
+        verbose_name = "Bankverbindung"
+        verbose_name_plural = "Bankverbindungen"
+#-----------------------------------------------------------------------------------------------------------------------
+class FinanceBase(Base):
+    date = models.DateField(default=date.today, verbose_name="Datum")
+    external_id = models.IntegerField(null=True, blank=True, verbose_name="externe ID")
+    net_amount = models.IntegerField(verbose_name="Nettobetrag", help_text="Nettobetrag in Cent")
+    notes = models.TextField(verbose_name="Notizen")
 
     @property
     def get_gross_amount(self):
@@ -19,46 +32,47 @@ class Document(Base):
 
     class Meta:
         abstract = True
-        verbose_name = "Dokument"
-        verbose_name_plural = "Dokumente"
 
-class Offer(Document):
 
-    class Meta:
-        verbose_name = "Angebot"
-        verbose_name_plural = "Angebote"
+from files.models import File
+#-----------------------------------------------------------------------------------------------------------------------
+class Order(Base):
+    client = models.ForeignKey("persons.Client", on_delete=models.PROTECT, related_name="client_orders",
+                               verbose_name="Kunde")
+    date = models.DateField(default=date.today, verbose_name="Auftragsdatum")
+    internal_id = models.IntegerField(null=True, blank=True, verbose_name="interne ID")
+    external_id = models.IntegerField(null=True, blank=True, verbose_name="externe ID")
+    net_amount = models.IntegerField(verbose_name="Nettobetrag", help_text="Nettobetrag in Cent")
+    notes = models.CharField(max_length=100, null=True, blank=True, verbose_name="Notizen")
 
-class CounterOffer(Document):
-
-    class Meta:
-        verbose_name = "Gegenangebot"
-        verbose_name_plural = "Gegenangebote"
-
-class Contract(Document):
 
     @property
     def number_of_invoices(self):
-        return self.invoice.count()
+        return self.contract_invoices.count()
 
+    @property
     def remaining_amount(self):
         amount = self.net_amount
-        for invoice in self.invoice:
+        for invoice in self.contract_invoices.all():
             amount = invoice.net_amount
         return amount
 
     class Meta:
-        verbose_name = "Vertrag"
-        verbose_name_plural = "Vertrage"
-
+        verbose_name = "Auftrag"
+        verbose_name_plural = "Aufträge"
+#-----------------------------------------------------------------------------------------------------------------------
+class CounterOffer(FinanceBase):
+    class Meta:
+        verbose_name = "Gegenangebot"
+        verbose_name_plural = "Gegenangebote"
+#-----------------------------------------------------------------------------------------------------------------------
 class Invoice(Base):
     date = models.DateField(default=date.today, verbose_name="Datum")
-    receiver = models.ForeignKey("persons.Client", on_delete=models.PROTECT, related_name="receiver_invoice", verbose_name="Empfänger")
-    orders = models.ManyToManyField("orders.Order", through="InvoiceOrder", related_name="orders_invoices", verbose_name="Aufträge")
-    contract = models.ForeignKey("Contract", on_delete=models.PROTECT, related_name="contract_invoice", verbose_name="Vertrag")
+    receiver = models.ForeignKey("persons.Client", on_delete=models.PROTECT, related_name="receiver_invoice",
+                                 verbose_name="Empfänger")
+    orders = models.ManyToManyField("orders.Order", through="InvoiceOrder", related_name="orders_invoices",
+                                    verbose_name="Aufträge")
     net_amount = models.IntegerField(verbose_name="Nettobetrag", help_text="Nettobetrag in Cent")
-
-    def __str__(self):
-        return f"{self.id}"
 
     @property
     def percentage(self):
@@ -68,7 +82,7 @@ class Invoice(Base):
     class Meta:
         verbose_name = "Rechnung"
         verbose_name_plural = "Rechnungen"
-
+#-----------------------------------------------------------------------------------------------------------------------
 class InvoiceOrder(Base):
     invoice = models.ForeignKey("Invoice", on_delete=models.PROTECT, verbose_name="Rechnung")
     order = models.ForeignKey("orders.Order", on_delete=models.PROTECT, verbose_name="Auftrag")
@@ -79,22 +93,16 @@ class InvoiceOrder(Base):
     class Meta:
         verbose_name = "Rechnung-Auftrag-Zuordnung"
         verbose_name_plural = "Rechnungen-Auftrag-Zuordnungen"
-
-class BankAccount(Base):
-    iban = models.CharField(verbose_name="IBAN")
-
+#-----------------------------------------------------------------------------------------------------------------------
+class Offer(FinanceBase):
     class Meta:
-        ordering = ("iban",)
-        verbose_name = "Bankverbindung"
-        verbose_name_plural = "Bankverbindungen"
-
-    def __str__(self):
-        return f"{self.iban}"
-
-
+        verbose_name = "Angebot"
+        verbose_name_plural = "Angebote"
+#-----------------------------------------------------------------------------------------------------------------------
 class Payment(Base):
     date = models.DateField(default=date.today, verbose_name="Datum")
     amount = models.PositiveIntegerField(help_text="Betrag in Cent", verbose_name="Betrag")
+
 
     class Meta:
         ordering = ("date",)
