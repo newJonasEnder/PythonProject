@@ -1,12 +1,10 @@
-from core.models import Base
-from datetime import date
 from django.db import models
 
 from datetime import date
 
 from core.models import Base
 
-#-----------------------------------------------------------------------------------------------------------------------
+from django.core.exceptions import ValidationError
 
 class File(Base):
     date = models.DateField(default=date.today, verbose_name="Datum")
@@ -16,11 +14,15 @@ class File(Base):
     def __str__(self):
         return f"{self.number}"
 
+    def clean(self):
+        super().clean()
+        if self.parent_file and self.parent_file.uuid == self.uuid:
+            raise ValidationError("Vorakt und Akt dürfen nicht identisch sein.")
+
     class Meta:
         verbose_name = "Akt"
         verbose_name_plural = "Akte"
 
-#-----------------------------------------------------------------------------------------------------------------------
 class FileLog(Base):
     date = models.DateField(default=date.today, verbose_name="Datum")
     file = models.ForeignKey("File", on_delete=models.PROTECT, verbose_name="Datei")
@@ -34,7 +36,7 @@ class FileLog(Base):
         ordering = ("date",)
         verbose_name = "Zustandsänderung"
         verbose_name_plural = "Zustandsänderungen"
-#-----------------------------------------------------------------------------------------------------------------------
+
 class FileStatus(Base):
     """A lookup table"""
     name = models.CharField(max_length=100, verbose_name="Name")
@@ -46,7 +48,7 @@ class FileStatus(Base):
         ordering = ("name",)
         verbose_name = "Zustand"
         verbose_name_plural = "Zustände"
-#-----------------------------------------------------------------------------------------------------------------------
+
 class FileNote(Base):
     date = models.DateField(default=date.today, verbose_name="Datum")
     file = models.ForeignKey("File", on_delete=models.PROTECT, related_name="file_file_notes", verbose_name="Akt")

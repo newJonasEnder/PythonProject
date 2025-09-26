@@ -14,6 +14,20 @@ class Order(Base):
     contacts = models.ManyToManyField("contacts.Contact", through="OrderContact", related_name="contact_orders", verbose_name="Kontakte")
     properties = models.ManyToManyField("properties.Property", through="OrderProperty", related_name="property_orders", verbose_name="Grundstücke")
 
+    def __str__(self):
+        return f"{self.id}"
+
+    """@property
+    def number_of_invoices(self):
+        return self.contract_invoices.count()
+
+    @property
+    def remaining_amount(self):
+        amount = self.net_amount
+        for invoice in self.contract_invoices.all():
+            amount = invoice.net_amount
+        return amount"""
+
     class Meta:
         verbose_name = "Auftrag"
         verbose_name_plural = "Aufträge"

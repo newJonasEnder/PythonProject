@@ -52,7 +52,7 @@ class Address(Base):
                                     blank=True,
                                     related_name="persons_addresses",
                                     verbose_name="Person")
-    company = models.ManyToManyField("persons.Company",
+    company = models.ManyToManyField("companies.Company",
                                      related_name="companies_addresses",
                                      through="AddressCompany",
                                      blank=True,
@@ -84,7 +84,7 @@ class AddressPerson(Base):
 
 
 class AddressCompany(Base):
-    company = models.ForeignKey("persons.Company",
+    company = models.ForeignKey("companies.Company",
                                on_delete=models.PROTECT,
                                related_name="addresses",
                                blank=True,

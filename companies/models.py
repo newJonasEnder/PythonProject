@@ -1,6 +1,8 @@
 from django.db import models
 
-class Company(models.Model):
+from core.models import Base
+
+class Company(Base):
     name = models.CharField(max_length=100, verbose_name="Name")
     uid = models.CharField(max_length=100, null=True, blank=True, verbose_name="UID")
 

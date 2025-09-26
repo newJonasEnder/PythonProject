@@ -1,14 +1,14 @@
-from datetime import date
+"""from datetime import date
 from django.db import models
 #-----------------------------------------------------------------------------------------------------------------------
 from core.models import Base
 from core.defaults import Defaults
 #-----------------------------------------------------------------------------------------------------------------------
 class BankAccount(Base):
-    companies = models.ManyToManyField("persons.Company", related_name="company_bank_accounts",
+    companies = models.ManyToManyField("companies.Company", related_name="company_bank_accounts",
                                        blank=True, verbose_name="Firmen")
     iban = models.CharField(verbose_name="IBAN")
-    persons = models.ManyToManyField("persons.Person", related_name="person_bank_accounts", blank=True,
+    internal_employee = models.ManyToManyField("persons.InternalEmployee", related_name="person_bank_accounts", blank=True,
                                      verbose_name="Personen")
 
     def __str__(self):
@@ -34,18 +34,6 @@ class FinanceBase(Base):
         abstract = True
 
 
-from files.models import File
-#-----------------------------------------------------------------------------------------------------------------------
-class Order(Base):
-    client = models.ForeignKey("persons.Client", on_delete=models.PROTECT, related_name="client_orders",
-                               verbose_name="Kunde")
-    date = models.DateField(default=date.today, verbose_name="Auftragsdatum")
-    internal_id = models.IntegerField(null=True, blank=True, verbose_name="interne ID")
-    external_id = models.IntegerField(null=True, blank=True, verbose_name="externe ID")
-    net_amount = models.IntegerField(verbose_name="Nettobetrag", help_text="Nettobetrag in Cent")
-    notes = models.CharField(max_length=100, null=True, blank=True, verbose_name="Notizen")
-
-
     @property
     def number_of_invoices(self):
         return self.contract_invoices.count()
@@ -61,14 +49,14 @@ class Order(Base):
         verbose_name = "Auftrag"
         verbose_name_plural = "Aufträge"
 #-----------------------------------------------------------------------------------------------------------------------
-class CounterOffer(FinanceBase):
+class CounterOffer(Base):
     class Meta:
         verbose_name = "Gegenangebot"
         verbose_name_plural = "Gegenangebote"
 #-----------------------------------------------------------------------------------------------------------------------
 class Invoice(Base):
     date = models.DateField(default=date.today, verbose_name="Datum")
-    receiver = models.ForeignKey("persons.Client", on_delete=models.PROTECT, related_name="receiver_invoice",
+    receiver = models.ForeignKey("clients.Client", on_delete=models.PROTECT, related_name="receiver_invoice",
                                  verbose_name="Empfänger")
     orders = models.ManyToManyField("orders.Order", through="InvoiceOrder", related_name="orders_invoices",
                                     verbose_name="Aufträge")
@@ -107,7 +95,7 @@ class Payment(Base):
     class Meta:
         ordering = ("date",)
         verbose_name = "Zahlung"
-        verbose_name_plural = "Zahlungen"
+        verbose_name_plural = "Zahlungen"""
 
 
 

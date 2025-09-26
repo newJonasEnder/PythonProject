@@ -2,7 +2,7 @@ from django.db import models
 
 class Owner(models.Model):
     person = models.OneToOneField("persons.Person", on_delete=models.PROTECT, related_name="person_owner", verbose_name="Person")
-    company = models.OneToOneField("persons.Company", on_delete=models.PROTECT, related_name="company_owner", verbose_name="Firma")
+    company = models.OneToOneField("companies.Company", on_delete=models.PROTECT, related_name="company_owner", verbose_name="Firma")
     properties = models.ManyToManyField("Property", through="Ownership", related_name="property_owners", verbose_name="Grundstück")
 
     def __str__(self):

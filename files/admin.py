@@ -35,7 +35,7 @@ class OrderInline(admin.TabularInline):
     model = Order
     fk_name = "file"
     fields = ["date", "id_link"]
-    readonly_fields = ["date", "id_link"]
+    readonly_fields = ["id_link"]
     extra = 0
     verbose_name = "Auftrag"
     verbose_name_plural = "Aufträge"
@@ -44,7 +44,7 @@ class OrderInline(admin.TabularInline):
         if not obj.pk:
             return "-"
         url = reverse(f"custom_admin:orders_order_change", args=[obj.pk],)
-        return format_html("<a href=\"{}\">{}</a>", url, obj.number)
+        return format_html("<a href=\"{}\">{}</a>", url, obj.id)
     id_link.short_description = "ID"
     id_link.admin_order_field = "id"
 
@@ -73,7 +73,7 @@ class FileAdmin(admin.ModelAdmin):
     list_display = ["date", "number"]
 
     class Media:
-        js = ("files/js/toggle.js",)
+        js = ("js/toggle.js",)
 
 custom_admin.register(File, FileAdmin)
 
